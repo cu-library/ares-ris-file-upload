@@ -102,7 +102,7 @@ AresRISFileUpload.processFile = function( risfilecontents ) {
                     break;
             }    
             item['T1'] = item['T1'] || item['TI'] || "Unknown";    
-            item['A1'] = item['A1'] || "Unknown";    
+            item['A1'] = item['A1'] || item['AU'] || "Unknown";    
             item['Y1'] = item['Y1'] || "Unknown";
             item['JF'] = item['JF'] || item['T2'] || "Unknown";  
             item['JF'] = item['JF'].split(" ").map(function(i){return i[0].toUpperCase() + i.substring(1).toLowerCase()}).join(" ");
