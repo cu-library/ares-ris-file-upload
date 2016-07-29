@@ -140,7 +140,7 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
     var jq = parent.jq;   
     
     if (parent.items.length == 0){
-        jq("#risoutput").html('<span>Processing complete!</span>'); 
+        jq("#risoutput").html('<span>Processing complete!</span><hr>'); 
         parent.addFileInput(); 
         return;
     }
@@ -163,7 +163,7 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
 
         var skiplinkurl = iframepath+iframesearch+'&Action=10&Form=60';          
 
-        content.find('form[name=createitem] fieldset').append('<a id="risskip" style="margin-left: 10px;" href="'+skiplinkurl+'">Skip This Item</a>');
+        content.find('form[name=createitem] fieldset').first().append('<a id="risskip" style="margin-left: 10px;" href="'+skiplinkurl+'">Skip This Item</a>');
     });   
     
 
