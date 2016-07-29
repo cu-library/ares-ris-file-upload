@@ -20,18 +20,18 @@ AresRISFileUpload.init = function(jq, courseID) {
     } 
     
     //Add the CSS file to the head of the document.
-    jq('head').append('<link rel="stylesheet" href="css/ares-ris-file-upload.css" type="text/css" />');
+    jq('head').append('<link rel="stylesheet" href="css/ares-ris-file-upload.css" type="text/css">');
    
     var appendLink = '<hr><span id="risupload">\n';
     appendLink +=    '  <img src="images/Large/favs_32.gif" height="32" width="32" alt="Upload RIS File" title="Upload RIS File">';
     appendLink +=    '  <br>';
     appendLink +=    '  <span aria-hidden="true">Upload RIS File</span>';
     appendLink +=    '  <br>';
-    appendLink +=    '  <input type="file" id="risfileinput" accept=".ris" style="margin: 20px;">';
+    appendLink +=    '  <input type="file" id="risfileinput" accept=".ris">';
     appendLink +=    '</span>';    
     jq("#content div:first-child").append(appendLink);
     
-    var appenddiv = '<div id="risoutput" style="clear:left;"></div>'
+    var appenddiv = '<div id="risoutput"></div>'
     jq("#content div:first-child").append(appenddiv);  
     
     jq("#risfileinput").change( function( event ) {
@@ -58,7 +58,7 @@ AresRISFileUpload.processupload = function( risfile ) {
     reader.readAsText(risfile);
 }
 
-AresRISFileUpload.processContents = function( risfilearray ) {
+AresRISFileUpload.processContents = function( risfilecontents ) {
     "use strict";
     var parent = AresRISFileUpload;
     var jq = parent.jq;    
@@ -68,6 +68,8 @@ AresRISFileUpload.processContents = function( risfilearray ) {
     var item = {
         "id": index, 
     };   
+
+    var risfilearray = risfilecontents.split("\n");
 
     while (risfilearray.length > 0) {
         var nextline = jq.trim(risfilearray.shift());               
@@ -139,7 +141,7 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
     
     jq("#risoutput").html('<span>Processed '+(parent.totalitems - parent.items.length)+'/'+parent.totalitems+ '</span>');  
     
-    jq("#risoutput").append('<iframe id="risiframe" style="width: 100%; height: 975px; display: none;"/></iframe>');  
+    jq("#risoutput").append('<iframe id="risiframe" style="display: none;"/></iframe>');  
     
     jq('#risiframe').load( function() {
         var content = jq(this).contents();
