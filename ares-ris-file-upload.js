@@ -151,7 +151,7 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
         content.find("#content-wrap").css("margin-top", "0px");
         content.find("#content").css("margin", "0px");
 
-        var skiplinkurl = iframepath + '&Action=10&Form=60';           
+        var skiplinkurl = iframepath+iframesearch+'&Action=10&Form=60';          
 
         content.find('form[name=createitem]').append('<a id="risskip" href="'+skiplinkurl+'">Skip This Item</a>');
     });   
@@ -159,9 +159,8 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
 
     switch (item['TY']) {
         case "Article":     
-        
-            iframesearch += '&Action=10&Form=2&Value=IRFArticle';            
-            var iframeurl = iframepath+iframesearch;  
+                
+            var iframeurl = iframepath+iframesearch+'&Action=10&Form=2&Value=IRFArticle';  
             
             jq('#risiframe').load( function() {
                 var iframecurrentsearch = jq(this).get(0).contentWindow.location.search; 
