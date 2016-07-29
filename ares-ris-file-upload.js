@@ -15,7 +15,7 @@ AresRISFileUpload.init = function(jq, courseID) {
     parent.totalitems = 0;
     
     if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
-      alert('The File APIs are not fully supported in this browser. Not showing the option to upload RIS files.');
+      console.log('The File APIs are not fully supported in this browser. Not showing the option to upload RIS files.');
       return;
     } 
     
@@ -46,7 +46,6 @@ AresRISFileUpload.init = function(jq, courseID) {
 AresRISFileUpload.processupload = function( risfile ) {
     "use strict";
     var parent = AresRISFileUpload;
-    var jq = parent.jq;   
 
     var reader = new FileReader();
     reader.onload = function( event ) { 
@@ -114,8 +113,8 @@ AresRISFileUpload.processContents = function( risfilecontents ) {
 
             item = {
                 "id": index,
-            };
-            
+            };           
+
         } else if (tag != "") {
             if (tag in item) {
                 item[tag] = item[tag] + ", " + value;                      
