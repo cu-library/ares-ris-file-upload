@@ -48,16 +48,15 @@ AresRISFileUpload.processupload = function( risfile ) {
     var parent = AresRISFileUpload;
 
     var reader = new FileReader();
-    reader.onload = function( event ) { 
-        var contents = event.target.result;        
-        parent.processContents(contents.split("\n"));
+    reader.onload = function( event ) {  
+        parent.processFile(event.target.result);
         parent.totalitems = parent.items.length;       
         parent.processItemsWithFormFrames();
     }
     reader.readAsText(risfile);
 }
 
-AresRISFileUpload.processContents = function( risfilecontents ) {
+AresRISFileUpload.processFile = function( risfilecontents ) {
     "use strict";
     var parent = AresRISFileUpload;
     var jq = parent.jq;    
