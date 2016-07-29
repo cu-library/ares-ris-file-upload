@@ -141,6 +141,9 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
     jq("#risoutput").html('<span>Processed '+(parent.totalitems - parent.items.length)+'/'+parent.totalitems+ '</span>');  
     
     jq("#risoutput").append('<iframe id="risiframe" style="display: none;"/></iframe>');  
+
+    var iframepath = '/ares.dll';
+    var iframesearch = '?SessionID='+sessionid+'&CourseID='+parent.courseID;
     
     jq('#risiframe').load( function() {
         var content = jq(this).contents();
@@ -148,10 +151,12 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
         content.find("#footer").hide();
         content.find("#content-wrap").css("margin-top", "0px");
         content.find("#content").css("margin", "0px");
-    });
+
+        var skiplinkurl = iframepath + '&Action=10&Form=60';           
+
+        content.find('form[name=createitem]').append('<a id="risskip" href="'+skiplinkurl+'">Skip This Item</a>');
+    });   
     
-    var iframepath = '/ares.dll';
-    var iframesearch = '?SessionID='+sessionid+'&CourseID='+parent.courseID;
 
     switch (item['TY']) {
         case "Article":     
@@ -160,8 +165,12 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
             var iframeurl = iframepath+iframesearch;  
             
             jq('#risiframe').load( function() {
-                var iframecurrentsearch = jq(this).get(0).contentWindow.location.search;                
+                var iframecurrentsearch = jq(this).get(0).contentWindow.location.search; 
+                var iframecurrentpath = jq(this).get(0).contentWindow.location.path;             
                 if ((iframecurrentsearch.indexOf("Action=10") >= 0) && (iframecurrentsearch.indexOf("Form=60") >= 0)){
+                    jq(this).remove();
+                    parent.processItemsWithFormFrames();
+                } else if (iframecurrentpath == "/skipitem"){
                     jq(this).remove();
                     parent.processItemsWithFormFrames();
                 } else if (iframecurrentsearch == iframesearch){
