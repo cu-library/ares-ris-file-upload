@@ -168,10 +168,7 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
                 if ((iframecurrentsearch.indexOf("Action=10") >= 0) && (iframecurrentsearch.indexOf("Form=60") >= 0)){
                     jq(this).remove();
                     parent.processItemsWithFormFrames();
-                } else if (iframecurrentpath == "/skipitem"){
-                    jq(this).remove();
-                    parent.processItemsWithFormFrames();
-                } else if (iframecurrentsearch == iframesearch){
+                } else if (iframecurrentsearch == iframesearch+'&Action=10&Form=2&Value=IRFArticle'){
                     var content = jq(this).contents();
                     content.find("#Title").val(item['JF']);
                     content.find("#Volume").val(item['VL']);
