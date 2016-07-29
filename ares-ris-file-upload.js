@@ -5,11 +5,12 @@
 var AresRISFileUpload = AresRISFileUpload || {};
 
 /* Init function. */
-AresRISFileUpload.init = function (jq) {
+AresRISFileUpload.init = function(jq, courseID) {
 
     "use strict";
     var parent = AresRISFileUpload;
     parent.jq = jq;
+    parent.courseID = courseID;
     parent.items = [];
     parent.totalitems = 0;
     
@@ -45,8 +46,8 @@ AresRISFileUpload.init = function (jq) {
 AresRISFileUpload.processupload = function( risfile ) {
     "use strict";
     var parent = AresRISFileUpload;
-    var jq = parent.jq;    
-   
+    var jq = parent.jq;   
+
     var reader = new FileReader();
     reader.onload = function( event ) { 
         var contents = event.target.result;        
@@ -149,7 +150,7 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
     });
     
     var iframepath = '/ares.dll';
-    var iframesearch = '?SessionID='+sessionid+'&CourseID='+courseid;
+    var iframesearch = '?SessionID='+sessionid+'&CourseID='+parent.courseID;
 
     switch (item['TY']) {
         case "Article":     
