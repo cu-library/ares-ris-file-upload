@@ -21,8 +21,21 @@ AresRISFileUpload.init = function(jq, courseID) {
     
     //Add the CSS file to the head of the document.
     jq('head').append('<link rel="stylesheet" href="css/ares-ris-file-upload.css" type="text/css">');
+
+    jq("#content div:first-child").append('<hr>');
    
-    var appendLink = '<hr><span id="risupload">\n';
+    parent.addFileInput();  
+};
+
+AresRISFileUpload.addFileInput = function() {
+    "use strict";
+    var parent = AresRISFileUpload;
+    var jq = parent.jq; 
+
+    var appenddiv = '<div id="risoutput"></div>'
+    jq("#content div:first-child").append(appenddiv);  
+
+    var appendLink = '<span id="risupload">\n';
     appendLink +=    '  <img src="images/Large/favs_32.gif" height="32" width="32" alt="Upload RIS File" title="Upload RIS File">';
     appendLink +=    '  <br>';
     appendLink +=    '  <span aria-hidden="true">Upload RIS File</span>';
@@ -30,18 +43,14 @@ AresRISFileUpload.init = function(jq, courseID) {
     appendLink +=    '  <input type="file" id="risfileinput" accept=".ris">';
     appendLink +=    '</span>';    
     jq("#content div:first-child").append(appendLink);
-    
-    var appenddiv = '<div id="risoutput"></div>'
-    jq("#content div:first-child").append(appenddiv);  
-    
+        
     jq("#risfileinput").change( function( event ) {
         if (event.target.files.length == 1){        
             parent.processupload(event.target.files[0]);
             jq("#risupload").remove();                       
         }
-    });      
-    
-};
+    });   
+}
 
 AresRISFileUpload.processupload = function( risfile ) {
     "use strict";
@@ -131,7 +140,8 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
     var jq = parent.jq;   
     
     if (parent.items.length == 0){
-        jq("#risoutput").html('<span>Processing complete!</span>');     
+        jq("#risoutput").html('<span>Processing complete!</span>'); 
+        parent.addFileInput(); 
         return;
     }
     
