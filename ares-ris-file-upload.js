@@ -1,7 +1,5 @@
 /* ares-ris-file-upload - https://github.com/cu-library/ares-ris-file-upload */
 
-/* uses fam fam fam icons */
-
 /* Create a AresRISFileUpload namespace by creating an empty object,
    in which we can define our data and functions. */
 var AresRISFileUpload = AresRISFileUpload || {};
@@ -12,13 +10,18 @@ AresRISFileUpload.init = function (jq) {
     "use strict";
     var parent = AresRISFileUpload;
     parent.jq = jq;
-
+    parent.items = [];
+    parent.totalitems = 0;
+    
     if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
       alert('The File APIs are not fully supported in this browser. Not showing the option to upload RIS files.');
       return;
     } 
+    
+    //Add the CSS file to the head of the document.
+    jq('head').append('<link rel="stylesheet" href="css/ares-ris-file-upload.css" type="text/css" />');
    
-    var appendLink = '<hr><span style="float:left; text-align: center; padding: 10px 20 px 20px 20px; clear: both;">\n';
+    var appendLink = '<hr><span id="risupload">\n';
     appendLink +=    '  <img src="images/Large/favs_32.gif" height="32" width="32" alt="Upload RIS File" title="Upload RIS File">';
     appendLink +=    '  <br>';
     appendLink +=    '  <span aria-hidden="true">Upload RIS File</span>';
@@ -27,9 +30,13 @@ AresRISFileUpload.init = function (jq) {
     appendLink +=    '</span>';    
     jq("#content div:first-child").append(appendLink);
     
+    var appenddiv = '<div id="risoutput" style="clear:left;"></div>'
+    jq("#content div:first-child").append(appenddiv);  
+    
     jq("#risfileinput").change( function( event ) {
         if (event.target.files.length == 1){        
             parent.processupload(event.target.files[0]);
+            jq("#risupload").remove();                       
         }
     });      
     
@@ -38,19 +45,19 @@ AresRISFileUpload.init = function (jq) {
 AresRISFileUpload.processupload = function( risfile ) {
     "use strict";
     var parent = AresRISFileUpload;
-    var jq = parent.jq;
-    
-    parent.addoutputdivtoDOMifmissing();
-    
+    var jq = parent.jq;    
+   
     var reader = new FileReader();
     reader.onload = function( event ) { 
         var contents = event.target.result;        
-        parent.processcontents(contents.split("\n"));
-     }
-     reader.readAsText(risfile);    
+        parent.processContents(contents.split("\n"));
+        parent.totalitems = parent.items.length;       
+        parent.processItemsWithFormFrames();
+    }
+    reader.readAsText(risfile);
 }
 
-AresRISFileUpload.processcontents = function( risfilearray ) {
+AresRISFileUpload.processContents = function( risfilearray ) {
     "use strict";
     var parent = AresRISFileUpload;
     var jq = parent.jq;    
@@ -59,7 +66,7 @@ AresRISFileUpload.processcontents = function( risfilearray ) {
     
     var item = {
         "id": index, 
-    };
+    };   
 
     while (risfilearray.length > 0) {
         var nextline = jq.trim(risfilearray.shift());               
@@ -88,15 +95,24 @@ AresRISFileUpload.processcontents = function( risfilearray ) {
             item['A1'] = item['A1'] || "Unknown";    
             item['Y1'] = item['Y1'] || "Unknown";
             item['JF'] = item['JF'] || "Unknown";  
+            item['JF'] = item['JF'].split(" ").map(function(i){return i[0].toUpperCase() + i.substring(1).toLowerCase()}).join(" ");
             item['SP'] = item['SP'] || "Unknown";              
             item['EP'] = item['EP'] || "Unknown";  
             
-            //parent.outputItemToDOM(item);
-            parent.uploadItem(item);
-            index += 1;
+            item['VL'] = item['VL'] || "";
+            item['IS'] = item['IS'] || "",
+            item['SN'] = item['SN'] || "",
+            item['DO'] = item['DO'] || "",
+            item['UR'] = item['UR'] || "",
+            
+            parent.items.push(item);         
+                      
+            index += 1;     
+
             item = {
                 "id": index,
             };
+            
         } else if (tag != "") {
             if (tag in item) {
                 item[tag] = item[tag] + ", " + value;                      
@@ -105,81 +121,74 @@ AresRISFileUpload.processcontents = function( risfilearray ) {
             }            
         } 
     }     
-    
-    jq("#risoutput").append('<div class="ristotal">Processed '+index+' items in RIS file.</div>');
+
 }
 
-AresRISFileUpload.uploadItem = function ( item ) {
+AresRISFileUpload.processItemsWithFormFrames = function() {
     "use strict";
     var parent = AresRISFileUpload;
-    var jq = parent.jq;
+    var jq = parent.jq;   
+    
+    if (parent.items.length == 0){
+        jq("#risoutput").html('<span>Processing complete!</span>');     
+        return;
+    }
+    
+    var item = parent.items.shift();
+    
+    jq("#risoutput").html('<span>Processed '+(parent.totalitems - parent.items.length)+'/'+parent.totalitems+ '</span>');  
+    
+    jq("#risoutput").append('<iframe id="risiframe" style="width: 100%; height: 975px; display: none;"/></iframe>');  
+    
+    jq('#risiframe').load( function() {
+        var content = jq(this).contents();
+        content.find("#header").hide();
+        content.find("#footer").hide();
+        content.find("#content-wrap").css("margin-top", "0px");
+        content.find("#content").css("margin", "0px");
+    });
+    
+    var iframepath = '/ares.dll';
+    var iframesearch = '?SessionID='+sessionid+'&CourseID='+courseid;
 
     switch (item['TY']) {
-        case "Article":        
-            var payload = {
-                "Action": 11,
-                "Type": 10,
-                "CopyrightRequired": "Yes",
-                "ItemType": "SER",
-                "format": "Article",                
-                "CourseID": courseid,
-                "SessionID": sessionid,
-                "Title": item['JF'],
-                "Volume": item['VL'] || "",
-                "Issue": item['IS'] || "",
-                "JournalYear":  item['Y1'],
-                "ArticleTitle": item['T1'],
-                "Author": item['A1'],
-                "ISXN": item['SN'] || "", 
-                "DOI": item['DO'] || "",
-                "ItemNote": "Item added through Ares RIS file upload.",
-                "Pages": item['SP'] + ' - ' + item['EP'],
-                "URL": item['UR'] || "",
-                "SupplyMethod": "WebLink",
-                "SubmitButton": "Submit Item",
-            }            
-            payload["Course"+courseid] = "on";           
-            var articleaddrequest = jq.post( "https://" + window.location.hostname + "/ares.dll", payload);                
-            break;
+        case "Article":     
+        
+            iframesearch += '&Action=10&Form=2&Value=IRFArticle';            
+            var iframeurl = iframepath+iframesearch;  
+            
+            jq('#risiframe').load( function() {
+                var iframecurrentsearch = jq(this).get(0).contentWindow.location.search;                
+                if ((iframecurrentsearch.indexOf("Action=10") >= 0) && (iframecurrentsearch.indexOf("Form=60") >= 0)){
+                    jq(this).remove();
+                    parent.processItemsWithFormFrames();
+                } else if (iframecurrentsearch == iframesearch){
+                    var content = jq(this).contents();
+                    content.find("#Title").val(item['JF']);
+                    content.find("#Volume").val(item['VL']);
+                    content.find("#Issue").val(item['IS']);
+                    content.find("#JournalYear").val(item['Y1']);
+                    content.find("#ArticleTitle").val(item['T1']);
+                    content.find("#Author").val(item['A1']);
+                    content.find("#ISXN").val(item['SN']);
+                    content.find("#DOI").val(item['DO']);
+                    content.find("#Pages").val(item['SP'] + ' - ' + item['EP']);
+                    content.find("#URL").val(item['UR']);
+                    content.find("#WebLink").attr("checked", "checked");
+                    jq(this).css('display', 'inline');
+                }
+            }); 
+            
+            jq('#risiframe').attr("src", iframeurl);          
+            break;            
         case "Book / e-Book":
+            jq('#risiframe').remove();
+            parent.processItemsWithFormFrames();
             break;
         case "Chapter":
-
-            break;           
-    }    
-}
-
-AresRISFileUpload.outputItemToDOM = function( item ) {
-    "use strict";
-    var parent = AresRISFileUpload;
-    var jq = parent.jq;
-   
-    var itemappend = '<div style="margin-bottom: 10px;" id="risitem' + item['id'] + '">';
+            jq('#risiframe').remove();
+            parent.processItemsWithFormFrames();
+            break;          
+    } 
     
-    itemappend += '<div class="ristype"><strong>'+item['TY']+'</strong></div>';
-    if ('UR' in item){
-        itemappend += '<div><a target="_blank" href="'+item['UR']+'">'+item['T1']+'</a></div>';
-    } else {
-        itemappend += '<div>'+item['T1']+'</div>';
-    }                
-    itemappend += '<div>'+item['A1']+'</div>';
-    itemappend += '<div>'+item['Y1']+'</div>';
-    if (! (item['TY'] === "Book / e-Book") ){
-        itemappend += '<div>'+item['JF']+'</div>';
-    }  
-
-    itemappend += '</div>';
-
-    jq("#risoutput").append(itemappend);
-}
-
-AresRISFileUpload.addoutputdivtoDOMifmissing = function() {
-    "use strict";
-    var parent = AresRISFileUpload;
-    var jq = parent.jq;
-
-    if ( !jq("#risoutput").length ){    
-        var appenddiv = '<div id="risoutput" style="clear:left;"></div>'
-        jq("#content div:first-child").append(appenddiv);    
-    }    
 }
