@@ -153,7 +153,7 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
 
         var skiplinkurl = iframepath+iframesearch+'&Action=10&Form=60';          
 
-        content.find('form[name=createitem] fieldset').append('<a id="risskip" href="'+skiplinkurl+'">Skip This Item</a>');
+        content.find('form[name=createitem] fieldset').append('<a id="risskip" style="margin-left: 10px;" href="'+skiplinkurl+'">Skip This Item</a>');
     });   
     
 
