@@ -194,7 +194,10 @@ AresRISFileUpload.processItemsWithFormFrames = function() {
         case "Chapter":
             jq('#risiframe').remove();
             parent.processItemsWithFormFrames();
-            break;          
+            break;  
+        default:
+            jq('#risiframe').remove();
+            parent.processItemsWithFormFrames();
     } 
     
 }
